@@ -1,6 +1,7 @@
 const BASE_URL = 'http://localhost:4000'; // Update with your Rails API base URL
 
 const handleResponse = async (response: Response) => {
+  console.log("Response", response);
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.errors || 'Something went wrong');

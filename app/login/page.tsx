@@ -2,21 +2,21 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signUp } from '../../services/api';
+import { login } from '../../services/api';
 import Image from 'next/image';
 
-const SignupPage = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState({ email: '', password: '', passwordConfirmation: '' });
+  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [loginError, setLoginError] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
-    const newErrors = { email: '', password: '', passwordConfirmation: '' };
+    const newErrors = { email: '', password: '' };
 
     if (!email) {
       newErrors.email = 'Email is required';
@@ -24,10 +24,6 @@ const SignupPage = () => {
     }
     if (!password) {
       newErrors.password = 'Password is required';
-      valid = false;
-    }
-    if (!passwordConfirmation) {
-      newErrors.passwordConfirmation = 'Password confirmation is required';
       valid = false;
     }
 
@@ -38,14 +34,14 @@ const SignupPage = () => {
     }
 
     try {
-      await signUp(email, password, passwordConfirmation);
-      setMessage('Signed up successfully');
-      router.push('/login');
+      await login(email, password);
+      setMessage('Logged in successfully');
+      router.push('/dashboard');
     } catch (error) {
       if (error instanceof Error) {
-        setMessage(`Error signing up: ${error.message}`);
+        setLoginError('Invalid email or password');
       } else {
-        setMessage('Error signing up');
+        setLoginError('Error logging in');
       }
     }
   };
@@ -61,7 +57,7 @@ const SignupPage = () => {
           height={20}
         />
         <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-          Sign up for your account
+          Log in to your account
         </h2>
       </div>
 
@@ -102,45 +98,22 @@ const SignupPage = () => {
               {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
             </div>
           </div>
-    
-          <div>
-            <label htmlFor="passwordConfirmation" className="block text-sm/6 font-medium text-gray-900">
-              Confirm Password
-            </label>
-            <div className="mt-2">
-              <input
-                type="password"
-                name="passwordConfirmation"
-                id="passwordConfirmation"
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-              {errors.passwordConfirmation && <p className="mt-2 text-sm text-red-600">{errors.passwordConfirmation}</p>}
-            </div>
-          </div>
 
           <div>
             <button
               type="submit"
               className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Sign up
+              Log in
             </button>
           </div>
         </form>
 
+        {loginError && <p className="mt-4 text-center text-sm text-red-600">{loginError}</p>}
         {message && <p className="mt-4 text-center text-sm/6 text-gray-500">{message}</p>}
-
-        <p className="mt-10 text-center text-sm/6 text-gray-500">
-          Already have an account?
-          <a href="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
-            Sign in
-          </a>
-        </p>
       </div>
     </div>
   );
 };
 
-export default SignupPage;
+export default LoginPage;
